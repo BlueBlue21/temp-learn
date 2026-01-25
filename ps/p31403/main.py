@@ -14,7 +14,11 @@ def print(string):
 
 
 def main():
-    return
+    a = input()
+    b = input()
+    c = int(input())
+    print(f"{int(a) + int(b) - c}\n")
+    print(f"{int(a + b) - c}\n")
 
 
 if __name__ == "__main__":

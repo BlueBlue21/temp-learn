@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "../cs50/cs50.h"
 
 void bark(int n);
@@ -28,6 +29,6 @@ int get_positive_number(string questions) {
     int n;
     do {
         n = get_int("%s", questions);
-    } while(n < 1);
+    } while (n < 1);
     return n;
 }

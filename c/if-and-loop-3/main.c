@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 int main(void) {
     // :D
@@ -25,7 +25,7 @@ int main(void) {
         printf("Unknown.\n");
     }
 
-    while (false) {
+    while (false) {  // 1
         printf("Hello, loop!\n");
     }
 

@@ -44,8 +44,8 @@
 #include <limits.h>
 #include <math.h>
 #include <stdarg.h>
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -75,11 +75,9 @@ static string *strings = NULL;
  * on heap, but library's destructor frees memory on program's exit.
  */
 #undef get_string
-string get_string(va_list *args, const char *format, ...)
-{
+string get_string(va_list *args, const char *format, ...) {
     // Check whether we have room for another string
-    if (allocations == SIZE_MAX / sizeof (string))
-    {
+    if (allocations == SIZE_MAX / sizeof(string)) {
         return NULL;
     }
 
@@ -96,8 +94,7 @@ string get_string(va_list *args, const char *format, ...)
     int c;
 
     // Prompt user
-    if (format != NULL)
-    {
+    if (format != NULL) {
         // Initialize variadic argument list
         va_list ap;
 
@@ -105,17 +102,16 @@ string get_string(va_list *args, const char *format, ...)
         // parameters. The student-facing get_string macro always sets args to
         // NULL. In this case, we initialize the list of variadic parameters
         // the standard way with va_start.
-        if (args == NULL)
-        {
+        if (args == NULL) {
             va_start(ap, format);
         }
 
         // When functions in this library call get_string they will have
         // already stored their variadic parameters in a `va_list` and so they
         // just pass that in by pointer.
-        else
-        {
-            // Put a copy of argument list in ap so it is not consumed by vprintf
+        else {
+            // Put a copy of argument list in ap so it is not consumed by
+            // vprintf
             va_copy(ap, *args);
         }
 
@@ -126,27 +122,22 @@ string get_string(va_list *args, const char *format, ...)
         va_end(ap);
     }
 
-    // Iteratively get characters from standard input, checking for CR (Mac OS), LF (Linux), and CRLF (Windows)
-    while ((c = fgetc(stdin)) != '\r' && c != '\n' && c != EOF)
-    {
+    // Iteratively get characters from standard input, checking for CR (Mac OS),
+    // LF (Linux), and CRLF (Windows)
+    while ((c = fgetc(stdin)) != '\r' && c != '\n' && c != EOF) {
         // Grow buffer if necessary
-        if (size + 1 > capacity)
-        {
+        if (size + 1 > capacity) {
             // Increment buffer's capacity if possible
-            if (capacity < SIZE_MAX)
-            {
+            if (capacity < SIZE_MAX) {
                 capacity++;
-            }
-            else
-            {
+            } else {
                 free(buffer);
                 return NULL;
             }
 
             // Extend buffer's capacity
             string temp = realloc(buffer, capacity);
-            if (temp == NULL)
-            {
+            if (temp == NULL) {
                 free(buffer);
                 return NULL;
             }
@@ -158,24 +149,21 @@ string get_string(va_list *args, const char *format, ...)
     }
 
     // Check whether user provided no input
-    if (size == 0 && c == EOF)
-    {
+    if (size == 0 && c == EOF) {
         return NULL;
     }
 
-    // Check whether user provided too much input (leaving no room for trailing NUL)
-    if (size == SIZE_MAX)
-    {
+    // Check whether user provided too much input (leaving no room for trailing
+    // NUL)
+    if (size == SIZE_MAX) {
         free(buffer);
         return NULL;
     }
 
     // If last character read was CR, try to read LF as well
-    if (c == '\r' && (c = fgetc(stdin)) != '\n')
-    {
+    if (c == '\r' && (c = fgetc(stdin)) != '\n') {
         // Return NULL if character can't be pushed back onto standard input
-        if (c != EOF && ungetc(c, stdin) == EOF)
-        {
+        if (c != EOF && ungetc(c, stdin) == EOF) {
             free(buffer);
             return NULL;
         }
@@ -183,8 +171,7 @@ string get_string(va_list *args, const char *format, ...)
 
     // Minimize buffer
     string s = realloc(buffer, size + 1);
-    if (s == NULL)
-    {
+    if (s == NULL) {
         free(buffer);
         return NULL;
     }
@@ -193,9 +180,8 @@ string get_string(va_list *args, const char *format, ...)
     s[size] = '\0';
 
     // Resize array so as to append string
-    string *tmp = realloc(strings, sizeof (string) * (allocations + 1));
-    if (tmp == NULL)
-    {
+    string *tmp = realloc(strings, sizeof(string) * (allocations + 1));
+    if (tmp == NULL) {
         free(s);
         return NULL;
     }
@@ -214,18 +200,15 @@ string get_string(va_list *args, const char *format, ...)
  * equivalent char; if text is not a single char, user is prompted
  * to retry. If line can't be read, returns CHAR_MAX.
  */
-char get_char(const char *format, ...)
-{
+char get_char(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
 
     // Try to get a char from user
-    while (true)
-    {
+    while (true) {
         // Get line of text, returning CHAR_MAX on failure
         string line = get_string(&ap, format);
-        if (line == NULL)
-        {
+        if (line == NULL) {
             va_end(ap);
             return CHAR_MAX;
         }
@@ -233,8 +216,7 @@ char get_char(const char *format, ...)
         // Return a char if only a char was provided
         char c, d;
         // It is only for windows
-        if (sscanf_s(line, "%c%c", &c, sizeof(c), &d, sizeof(d)) == 1)
-        {
+        if (sscanf_s(line, "%c%c", &c, sizeof(c), &d, sizeof(d)) == 1) {
             va_end(ap);
             return c;
         }
@@ -247,33 +229,28 @@ char get_char(const char *format, ...)
  * a double or if value would cause underflow or overflow, user is
  * prompted to retry. If line can't be read, returns DBL_MAX.
  */
-double get_double(const char *format, ...)
-{
+double get_double(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
 
     // Try to get a double from user
-    while (true)
-    {
+    while (true) {
         // Get line of text, returning DBL_MAX on failure
         string line = get_string(&ap, format);
-        if (line == NULL)
-        {
+        if (line == NULL) {
             va_end(ap);
             return DBL_MAX;
         }
 
         // Return a double if only a double was provided
-        if (strlen(line) > 0 && !isspace((unsigned char) line[0]))
-        {
+        if (strlen(line) > 0 && !isspace((unsigned char)line[0])) {
             char *tail;
             errno = 0;
             double d = strtod(line, &tail);
-            if (errno == 0 && *tail == '\0' && isfinite(d) != 0 && d < DBL_MAX)
-            {
+            if (errno == 0 && *tail == '\0' && isfinite(d) != 0 &&
+                d < DBL_MAX) {
                 // Disallow hexadecimal and exponents
-                if (strcspn(line, "XxEePp") == strlen(line))
-                {
+                if (strcspn(line, "XxEePp") == strlen(line)) {
                     va_end(ap);
                     return d;
                 }
@@ -288,34 +265,29 @@ double get_double(const char *format, ...)
  * a float or if value would cause underflow or overflow, user is prompted
  * to retry. If line can't be read, returns FLT_MAX.
  */
-float get_float(const char *format, ...)
-{
+float get_float(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
 
     // Try to get a float from user
-    while (true)
-    {
+    while (true) {
         // Get line of text, returning FLT_MAX on failure
         string line = get_string(&ap, format);
 
-        if (line == NULL)
-        {
+        if (line == NULL) {
             va_end(ap);
             return FLT_MAX;
         }
 
         // Return a float if only a float was provided
-        if (strlen(line) > 0 && !isspace((unsigned char) line[0]))
-        {
+        if (strlen(line) > 0 && !isspace((unsigned char)line[0])) {
             char *tail;
             errno = 0;
             float f = strtof(line, &tail);
-            if (errno == 0 && *tail == '\0' && isfinite(f) != 0 && f < FLT_MAX)
-            {
+            if (errno == 0 && *tail == '\0' && isfinite(f) != 0 &&
+                f < FLT_MAX) {
                 // Disallow hexadecimal and exponents
-                if (strcspn(line, "XxEePp") == strlen(line))
-                {
+                if (strcspn(line, "XxEePp") == strlen(line)) {
                     va_end(ap);
                     return f;
                 }
@@ -330,30 +302,25 @@ float get_float(const char *format, ...)
  * or would cause underflow or overflow, user is prompted to retry. If line
  * can't be read, returns INT_MAX.
  */
-int get_int(const char *format, ...)
-{
+int get_int(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
 
     // Try to get an int from user
-    while (true)
-    {
+    while (true) {
         // Get line of text, returning INT_MAX on failure
         string line = get_string(&ap, format);
-        if (line == NULL)
-        {
+        if (line == NULL) {
             va_end(ap);
             return INT_MAX;
         }
 
         // Return an int if only an int (in range) was provided
-        if (strlen(line) > 0 && !isspace((unsigned char) line[0]))
-        {
+        if (strlen(line) > 0 && !isspace((unsigned char)line[0])) {
             char *tail;
             errno = 0;
             long n = strtol(line, &tail, 10);
-            if (errno == 0 && *tail == '\0' && n >= INT_MIN && n < INT_MAX)
-            {
+            if (errno == 0 && *tail == '\0' && n >= INT_MIN && n < INT_MAX) {
                 va_end(ap);
                 return n;
             }
@@ -367,30 +334,25 @@ int get_int(const char *format, ...)
  * [-2^63, 2^63 - 1) or would cause underflow or overflow, user is
  * prompted to retry. If line can't be read, returns LONG_MAX.
  */
-long get_long(const char *format, ...)
-{
+long get_long(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
 
     // Try to get a long from user
-    while (true)
-    {
+    while (true) {
         // Get line of text, returning LONG_MAX on failure
         string line = get_string(&ap, format);
-        if (line == NULL)
-        {
+        if (line == NULL) {
             va_end(ap);
             return LONG_MAX;
         }
 
         // Return a long if only a long (in range) was provided
-        if (strlen(line) > 0 && !isspace((unsigned char) line[0]))
-        {
+        if (strlen(line) > 0 && !isspace((unsigned char)line[0])) {
             char *tail;
             errno = 0;
             long n = strtol(line, &tail, 10);
-            if (errno == 0 && *tail == '\0' && n < LONG_MAX)
-            {
+            if (errno == 0 && *tail == '\0' && n < LONG_MAX) {
                 va_end(ap);
                 return n;
             }
@@ -404,30 +366,25 @@ long get_long(const char *format, ...)
  * [-2^63, 2^63 - 1) or would cause underflow or overflow, user is
  * prompted to retry. If line can't be read, returns LLONG_MAX.
  */
-long long get_long_long(const char *format, ...)
-{
+long long get_long_long(const char *format, ...) {
     va_list ap;
     va_start(ap, format);
 
     // Try to get a long long from user
-    while (true)
-    {
+    while (true) {
         // Get line of text, returning LLONG_MAX on failure
         string line = get_string(&ap, format);
-        if (line == NULL)
-        {
+        if (line == NULL) {
             va_end(ap);
             return LLONG_MAX;
         }
 
         // Return a long long if only a long long (in range) was provided
-        if (strlen(line) > 0 && !isspace((unsigned char) line[0]))
-        {
+        if (strlen(line) > 0 && !isspace((unsigned char)line[0])) {
             char *tail;
             errno = 0;
             long long n = strtoll(line, &tail, 10);
-            if (errno == 0 && *tail == '\0' && n < LLONG_MAX)
-            {
+            if (errno == 0 && *tail == '\0' && n < LLONG_MAX) {
                 va_end(ap);
                 return n;
             }
@@ -438,13 +395,10 @@ long long get_long_long(const char *format, ...)
 /**
  * Called automatically after execution exits main.
  */
-static void teardown(void)
-{
+static void teardown(void) {
     // Free library's strings
-    if (strings != NULL)
-    {
-        for (size_t i = 0; i < allocations; i++)
-        {
+    if (strings != NULL) {
+        for (size_t i = 0; i < allocations; i++) {
             free(strings[i]);
         }
         free(strings);
@@ -453,26 +407,27 @@ static void teardown(void)
 
 /**
  * Preprocessor magic to make initializers work somewhat portably
- * Modified from http://stackoverflow.com/questions/1113409/attribute-constructor-equivalent-in-vc
+ * Modified from
+ * http://stackoverflow.com/questions/1113409/attribute-constructor-equivalent-in-vc
  */
-#if defined (_MSC_VER) // MSVC
-    #pragma section(".CRT$XCU",read)
-    #define INITIALIZER_(FUNC,PREFIX) \
-        static void FUNC(void); \
-        __declspec(allocate(".CRT$XCU")) void (*FUNC##_)(void) = FUNC; \
-        __pragma(comment(linker,"/include:" PREFIX #FUNC "_")) \
-        static void FUNC(void)
-    #ifdef _WIN64
-        #define INITIALIZER(FUNC) INITIALIZER_(FUNC,"")
-    #else
-        #define INITIALIZER(FUNC) INITIALIZER_(FUNC,"_")
-    #endif
-#elif defined (__GNUC__) // GCC, Clang, MinGW
-    #define INITIALIZER(FUNC) \
-        static void FUNC(void) __attribute__((constructor)); \
-        static void FUNC(void)
+#if defined(_MSC_VER)  // MSVC
+#pragma section(".CRT$XCU", read)
+#define INITIALIZER_(FUNC, PREFIX)                                            \
+    static void FUNC(void);                                                   \
+    __declspec(allocate(".CRT$XCU")) void (*FUNC##_)(void) = FUNC;            \
+    __pragma(comment(linker, "/include:" PREFIX #FUNC "_")) static void FUNC( \
+        void)
+#ifdef _WIN64
+#define INITIALIZER(FUNC) INITIALIZER_(FUNC, "")
 #else
-    #error The CS50 library requires some compiler-specific features, \
+#define INITIALIZER(FUNC) INITIALIZER_(FUNC, "_")
+#endif
+#elif defined(__GNUC__)  // GCC, Clang, MinGW
+#define INITIALIZER(FUNC)                                \
+    static void FUNC(void) __attribute__((constructor)); \
+    static void FUNC(void)
+#else
+#error The CS50 library requires some compiler-specific features, \
            but we do not recognize this compiler/version. Please file an issue at \
            https://github.com/cs50/libcs50
 #endif
@@ -480,8 +435,7 @@ static void teardown(void)
 /**
  * Called automatically before execution enters main.
  */
-INITIALIZER(setup)
-{
+INITIALIZER(setup) {
     // Disable buffering for standard output
     setvbuf(stdout, NULL, _IONBF, 0);
     atexit(teardown);

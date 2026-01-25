@@ -13,9 +13,10 @@ def print(string):
     sys.stdout.write(string)
 
 
-def main():
-    return
+n = int(input())
+m = list(map(int, input()))
 
-
-if __name__ == "__main__":
-    main()
+sum = 0
+for i in range(n):
+    sum += m[i]
+print(f"{sum}\n")

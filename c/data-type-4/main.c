@@ -1,4 +1,5 @@
 #include <stdio.h>
+
 #include "../cs50/cs50.h"
 
 int main(void) {
@@ -7,7 +8,8 @@ int main(void) {
     printf("You are at least %i days old.\n", days);
 
     float price = get_float("What's the price?: ");
-    printf("Your total is %.2f.\n", price * 1.0625); // Massachusetts Sales and use tax: 6.25%
+    printf("Your total is %.2f.\n",
+           price * 1.0625);  // Massachusetts Sales and use tax: 6.25%
 
     int n = get_int("n: ");
     if (n % 2 == 0) {
